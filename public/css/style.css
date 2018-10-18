@@ -1,0 +1,53 @@
+.caption {
+  padding: 10px;
+  border-radius: 25px;
+
+  /* text outline */
+  -webkit-text-stroke: 2px black;
+}
+.jumbotron {
+  background-image: url("/img/food-1081707_1920.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
+}
+
+img {
+  max-height: 33vh;
+  object-fit: contain;
+}
+
+.logo {
+  width: 50vh;
+  padding-top: 25px;
+  padding-bottom: 25px;
+}
+.burger-name {
+  word-wrap: break-word;
+}
+
+.burger-name:hover {
+  overflow: visible;
+  transition: 0.5s ease;
+}
+
+li > .btn {
+  width: 30px;
+}
+
+input,
+li {
+  letter-spacing: 0.01em;
+}
+
+li:hover {
+  text-shadow: 0 0 0.9px #333, 0 0 0.9px #333, 0 0 0.9px #333;
+}
+
+.slightly-bold {
+  font-weight: 600;
+}
+
+.warning-text {
+  opacity: 0;
+}

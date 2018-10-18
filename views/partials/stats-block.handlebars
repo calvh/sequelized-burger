@@ -1,0 +1,17 @@
+<p class="card-text">Total burgers devoured: <strong>{{totalBurgers}}</strong></p>
+<p class="card-text">Top devoured burgers: {{#if totalBurgers}}
+        <ul>{{#each topBurger}}
+                <li>{{burger_name}} ({{sum_devoured}} eaten)</li>
+            {{/each}}</ul>
+    {{else}}<span>No burgers devoured yet!</span>
+
+    {{/if}}
+</p>
+<p class="card-text">Most well-fed customers: {{#if totalBurgers}}
+        <ul>{{#each topCustomer}}
+                <li>{{customer_name}} ({{sum_devoured}} eaten)</li>
+            {{/each}}</ul>
+    {{else}}
+        <span>No burgers devoured yet!</span>
+    {{/if}}
+</p>

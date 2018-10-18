@@ -1,0 +1,13 @@
+<li class="list-group-item d-flex justify-content-between align-items-center">
+
+    <div class="custom-control custom-checkbox">
+        <input data-customerid="{{this.id}}" type="checkbox" class="custom-control-input" id="customCheck{{this.id}}">
+        <label class="custom-control-label" for="customCheck{{this.id}}"><span class="customer-name">{{this.customer_name}}</span></label>
+    </div>
+    <span class="badge badge-primary badge-pill total-devoured" data-toggle="tooltip" data-trigger="hover"
+        data-placement="top" data-html="true" title="
+            {{#each this.burgers}}
+                    <strong>{{this.burger_name}}</strong>: {{this.devoured.total_devoured}}{{#unless @last}}<br>{{/unless}}
+                    {{else}}No burgers devoured yet!
+                {{/each}}">{{this.sum_devoured}}</span>
+</li>

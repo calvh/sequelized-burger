@@ -1,0 +1,22 @@
+{{#unless devoured}}
+    <li class="list-group-item d-flex justify-content-between align-items-center fresh-burger">
+        <span class="burger-name">{{this.burger_name}}</span>
+        <button data-burgerid="{{this.id}}" class="btn btn-warning btn-sm btn-devour-burger" data-toggle="tooltip"
+            data-placement="top" title="Devour me!"><i class="fas fa-utensils"></i></button>
+    </li>
+{{else}}
+    <li class="list-group-item d-flex justify-content-between align-items-center devoured-burger disabled">
+        <span class="burger-name">{{this.burger_name}}</span>
+        <div>
+            <button data-burgerid="{{this.id}}" class="btn btn-info btn-sm" data-toggle="tooltip" data-placement="top"
+                data-html="true" title="<strong>{{#each this.customers}}
+                    {{#if @last}}and{{/if}} {{this.customer_name}}{{#unless @last}},{{/unless}}
+                {{/each}}</strong> ate this."><i
+                    class="fas fa-info"></i></button>
+            <button data-burgerid="{{this.id}}" class="btn btn-success btn-sm btn-reset-burger" data-toggle="tooltip"
+                data-placement="top" title="Reset me!"><i class="fas fa-undo-alt"></i></button>
+            <button data-burgerid="{{this.id}}" class="btn btn-warning btn-sm btn-devour-burger" data-toggle="tooltip"
+                data-placement="top" title="Devour me again!"><i class="fas fa-utensils"></i></button>
+        </div>
+    </li>
+{{/unless}}
