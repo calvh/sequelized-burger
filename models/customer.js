@@ -7,23 +7,23 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         validate: {
           notEmpty: {
-            msg: "Text cannot be empty."
+            msg: "Text cannot be empty.",
           },
           len: {
             args: [1, 20],
-            msg: "Maximum text length exceeded."
-          }
-        }
-      }
+            msg: "Maximum text length exceeded.",
+          },
+        },
+      },
     },
     {
-      underscored: true
+      underscored: true,
     }
   );
 
   Customer.associate = models => {
     models.customer.belongsToMany(models.burger, {
-      through: models.devoured
+      through: "devoured",
     });
   };
 

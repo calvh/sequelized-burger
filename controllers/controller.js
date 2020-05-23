@@ -6,58 +6,57 @@ module.exports = db => {
   const Customer = db.customer;
 
   const controller = {
-    // * render main page
+    // * get all burgers, customers and render main page
     render_all(req, res) {
       Promise.all([
-        // * get all burgers and associated customers
         Burger.findAll({
           include: [
             {
               model: Customer,
               attributes: {
-                exclude: ["created_at", "updated_at"]
+                exclude: ["created_at", "updated_at"],
               },
               through: {
                 attributes: ["total_devoured"],
-                where: { total_devoured: { [Op.gt]: 0 } }
-              }
-            }
+                where: { total_devoured: { [Op.gt]: 0 } },
+              },
+            },
           ],
           attributes: {
-            exclude: ["created_at", "updated_at"]
-          }
+            exclude: ["created_at", "updated_at"],
+          },
         }),
-        // * get all customers and associated burgers
         Customer.findAll({
           include: [
             {
               model: Burger,
               attributes: {
-                exclude: ["created_at", "updated_at"]
+                exclude: ["created_at", "updated_at"],
               },
               through: {
                 attributes: ["total_devoured"],
-                where: { total_devoured: { [Op.gt]: 0 } }
-              }
-            }
+                where: { total_devoured: { [Op.gt]: 0 } },
+              },
+            },
           ],
-          attributes: { exclude: ["created_at", "updated_at"] }
-        })
+          attributes: { exclude: ["created_at", "updated_at"] },
+        }),
       ])
         .then(([dbBurgers, dbCustomers]) => {
-          // * get raw values
           let customers = dbCustomers.map(customer => customer.dataValues);
           let burgers = dbBurgers.map(burger => burger.dataValues);
+          console.log("burgers: ", burgers);
+          console.log("customers: ", customers);
 
           // * add "devoured" and "sum_devoured" properties to each burger
           burgers.forEach(burger => {
+            // whether or not burger has been eaten at all
             burger.devoured = burger.customers.length > 0;
-            burger.sum_devoured = burger.customers.reduce(
-              (accumulator, currVal) => {
-                return accumulator + currVal.devoured.total_devoured;
-              },
-              0
-            );
+
+            // total number of times burger has been eaten
+            burger.sum_devoured = burger.customers.reduce((acc, currVal) => {
+              return acc + currVal.devoured.total_devoured;
+            }, 0);
           });
 
           // * add "sum_devoured" property to each customer
@@ -100,12 +99,36 @@ module.exports = db => {
             topBurger = sortDesc(burgers, "sum_devoured");
           }
 
+          // customers: {
+          //   id,
+          //   customer_name,
+          //   total_devoured,
+          //   burgers: {
+          //     burger_name,
+          //     devoured: {
+          //       total_devoured
+          //     }
+          //   },
+          //   *sum_devoured
+          // }
+
+          // burgers: {
+          //   id,
+          //   burger_name,
+          //   customers: {
+          //     customer_name
+          //   }
+          //   devoured,
+          //   *sum_devoured
+          // }
+
           const data = {
+            // TODO use ES6 object shorthand
             customers: customers,
             burgers: burgers,
             topBurger: topBurger,
             topCustomer: topCustomer,
-            totalBurgers: totalBurgers
+            totalBurgers: totalBurgers,
           };
 
           res.render("index", data);
@@ -116,6 +139,7 @@ module.exports = db => {
         });
     },
 
+    // * get one burger
     burger_list_get(req, res) {
       const id = req.params.id;
       if (id) {
@@ -126,10 +150,10 @@ module.exports = db => {
               model: Customer,
               through: {
                 attributes: ["total_devoured"],
-                where: { total_devoured: { [Op.gt]: 0 } }
-              }
-            }
-          ]
+                where: { total_devoured: { [Op.gt]: 0 } },
+              },
+            },
+          ],
         })
           .then(dbBurger => {
             console.log(`Returning JSON of burger ID ${id}`);
@@ -146,10 +170,10 @@ module.exports = db => {
               model: Customer,
               through: {
                 attributes: ["total_devoured"],
-                where: { total_devoured: { [Op.gt]: 0 } }
-              }
-            }
-          ]
+                where: { total_devoured: { [Op.gt]: 0 } },
+              },
+            },
+          ],
         })
           .then(dbBurgers => {
             console.log("Returning JSON of all burgers...");
@@ -162,11 +186,12 @@ module.exports = db => {
       }
     },
 
+    // * create new burger
     burger_create_post(req, res) {
       const burgerName = req.body.burger_name;
       Promise.all([
         Burger.create({ burger_name: burgerName }),
-        Customer.findAll()
+        Customer.findAll(),
       ])
         .then(([newBurger, dbCustomers]) => {
           return newBurger.setCustomers(dbCustomers);
@@ -182,26 +207,45 @@ module.exports = db => {
         });
     },
 
+    // * devour or reset one or all burgers
     burger_update_put(req, res) {
       const burgerID = req.params.id;
       const customerIDs = req.body.customers;
       const reset = req.body.reset;
 
-      if (burgerID) {
+      // TODO refactor
+      // if (burgerID) {
+      //   // if burgerID is specified, find one burger
+
+
+      //   if (reset) {
+
+
+      //   } else {
+      //     Devoured.update({
+
+      //     })
+      //   }
+
         Burger.findOne({ where: { id: burgerID } })
           .then(dbBurger => {
             if (customerIDs) {
               return dbBurger.getCustomers({
-                where: { id: { [Op.in]: customerIDs } }
+                where: { id: { [Op.in]: customerIDs } },
               });
-            } else {
-              return dbBurger.getCustomers();
             }
+
+            // else return all customers
+            return dbBurger.getCustomers();
           })
           .then(dbCustomers => {
             dbCustomers.forEach(dbCustomer => {
               if (reset) {
                 // * reset a burger (and all associated customers)
+                Devoured.update(
+                  { total_devoured: 0 },
+                  { where: { burger_id: { [Op.ne]: 0 } } }
+                )
                 dbCustomer.devoured.total_devoured = 0;
                 dbCustomer.devoured.save();
               } else {
@@ -232,6 +276,7 @@ module.exports = db => {
       }
     },
 
+    // * get one or all customers
     customer_list_get(req, res) {
       const id = req.params.id;
       if (id) {
@@ -242,10 +287,10 @@ module.exports = db => {
               model: Burger,
               through: {
                 attributes: ["total_devoured"],
-                where: { total_devoured: { [Op.gt]: 0 } }
-              }
-            }
-          ]
+                where: { total_devoured: { [Op.gt]: 0 } },
+              },
+            },
+          ],
         })
           .then(dbCustomer => {
             console.log(`Returning JSON of customer ID ${id}`);
@@ -262,10 +307,10 @@ module.exports = db => {
               model: Burger,
               through: {
                 attributes: ["total_devoured"],
-                where: { total_devoured: { [Op.gt]: 0 } }
-              }
-            }
-          ]
+                where: { total_devoured: { [Op.gt]: 0 } },
+              },
+            },
+          ],
         })
           .then(dbCustomers => {
             console.log("Returning JSON of all burgers...");
@@ -278,12 +323,13 @@ module.exports = db => {
       }
     },
 
+    // * create new customer
     customer_create_post(req, res) {
       const customerName = req.body.customer_name;
       console.log("customerName: ", customerName);
       Promise.all([
         Customer.create({ customer_name: customerName }),
-        Burger.findAll()
+        Burger.findAll(),
       ])
         .then(([newCustomer, dbBurgers]) => {
           return newCustomer.setBurgers(dbBurgers);
@@ -309,7 +355,7 @@ module.exports = db => {
           .then(dbCustomer => {
             if (burgerIDs) {
               return dbCustomer.getBurgers({
-                where: { id: { [Op.in]: burgerIDs } }
+                where: { id: { [Op.in]: burgerIDs } },
               });
             } else {
               return dbCustomer.getBurgers();
@@ -347,7 +393,7 @@ module.exports = db => {
             res.status(500).end();
           });
       }
-    }
+    },
   };
 
   return controller;

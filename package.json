@@ -9,22 +9,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/h-cal/sequelized-burger.git"
+    "url": "git+https://github.com/calvh/sequelized-burger.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/h-cal/sequelized-burger/issues"
+    "url": "https://github.com/calvh/sequelized-burger/issues"
   },
-  "homepage": "https://github.com/h-cal/sequelized-burger#readme",
+  "homepage": "https://github.com/calvh/sequelized-burger#readme",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "dotenv": "^6.1.0",
-    "express": "^4.16.3",
-    "express-handlebars": "^3.0.0",
-    "mysql2": "^1.6.1",
-    "sequelize": "^4.39.0"
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "express-handlebars": "^3.0.2",
+    "mysql2": "^1.6.5",
+    "sequelize": "^4.43.2"
   },
   "devDependencies": {}
 }
